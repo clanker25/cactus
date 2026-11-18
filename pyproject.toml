@@ -1,0 +1,69 @@
+[project]
+name = "cactus-compute"
+version = "4.2.0"
+description = "Local voice, vision, agents and quantized language-model inference."
+requires-python = ">=3.9"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "huggingface_hub",
+    "Pillow>=10",
+]
+
+[project.optional-dependencies]
+vision = []
+train = [
+  "numpy",
+  "jax",
+  "jaxlib",
+  "flax>=0.10.2",
+  "optax",
+  "safetensors",
+  "sentencepiece",
+  "whisper-normalizer",
+  "soxr"
+]
+gpu = ["jax[cuda12]"]
+metal = [
+    "jax==0.4.38",
+    "jaxlib==0.4.38",
+    "jax-metal"
+]
+mic = ["numpy", "soxr", "sounddevice"]
+compare = ["openai-whisper", "moonshine-voice"]
+test = ["pytest", "pydantic"]
+# mlx-cpu (the CPU backend Linux needs) is gated to Linux by mlx itself; macOS gets mlx + Metal.
+mlx = [
+    "mlx[cpu]",
+    "mlx==0.32.4; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
+    "mlx-lm==0.32.2; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
+    "transformers==5.22.2; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
+    "numpy==2.5.4; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
+    "huggingface-hub==2.4.0; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
+    "Pillow==13.0.0; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
+]
+
+[project.urls]
+Homepage = "https://cactuscompute.com"
+Repository = "https://github.com/cactus-compute/cactus"
+"Bug Tracker" = "https://github.com/cactus-compute/cactus/issues"
+
+[project.scripts]
+cactus = "cactus.cli:main"
+cactus-mlx = "cactus.mlx.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cactus*"]
+
+[tool.setuptools.package-data]
+"cactus.model" = ["*.model", "*.vocab"]
+"cactus.playground" = ["index.html", "app.js", "style.css"]
+"cactus.mlx" = ["kernels/*.metal", "NOTICE"]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: end-to-end JAX build/finetune tests (init a tiny model)"]
